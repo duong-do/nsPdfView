@@ -1,0 +1,12 @@
+<ActionBar title="Home" class="action-bar">
+</ActionBar>
+
+<GridLayout rows="auto, *, auto, auto, auto">
+  <Label row="0" text="{{path}}" color="black"></Label>
+	<!-- <Label row="0" text="Test" color="black"></Label> -->
+	<PDFView row="1" src="{{ path }}"></PDFView>
+	<Label row="2" text="Comments" color="black"></Label>
+	<TextView row="3" editable="false"></TextView>
+  <Button row="4" width="30%" class="btn btn-primary btn-rounded-sm" text="Close" (tap)="submit()"></Button>
+  
+</GridLayout>
