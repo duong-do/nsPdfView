@@ -1,12 +1,10 @@
 <ActionBar title="Home" class="action-bar">
 </ActionBar>
 
-<GridLayout rows="auto, *, auto, auto, auto">
-  <Label row="0" text="{{path}}" color="black"></Label>
-	<!-- <Label row="0" text="Test" color="black"></Label> -->
-	<PDFView row="1" src="{{ path }}"></PDFView>
-	<Label row="2" text="Comments" color="black"></Label>
-	<TextView row="3" editable="false"></TextView>
-  <Button row="4" width="30%" class="btn btn-primary btn-rounded-sm" text="Close" (tap)="submit()"></Button>
-  
+<GridLayout columns="*,*,*" rows="*,auto">
+  <PDFView row="0" colspan="3" width="300" height="300"src="{{pdfPath}}"></PDFView>
+
+  <Button row="1" col="0" width="30%" class="btn btn-primary btn-rounded-sm" text="URL" (tap)="getPathPdfFromUrl()"></Button>
+  <Button row="1" col="1" width="30%" class="btn btn-primary btn-rounded-sm" text="Local" (tap)="getPathPdfFromDisk()"></Button>
+  <Button row="1" col="2" width="30%" class="btn btn-primary btn-rounded-sm" text="Base64" (tap)="getPdfFromBase64()"></Button>
 </GridLayout>
