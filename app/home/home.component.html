@@ -1,10 +1,13 @@
 <ActionBar title="Home" class="action-bar">
 </ActionBar>
 
-<GridLayout columns="*,*,*" rows="*,auto">
-  <PDFView row="0" colspan="3" width="300" height="300"src="{{pdfPath}}"></PDFView>
+<GridLayout columns="*,*,*,*" rows="*,auto">
+  <PDFView row="0" colspan="4" width="300" height="300"src="{{filePath}}"></PDFView>
+  <!-- <Image row="0" colspan="4" src="{{filePath}}" stretch="aspectFill" > </Image> -->
+  <!-- <label row="0" colspan="3" text="{{file}}" stretch="aspectFill" > </label> -->
 
-  <Button row="1" col="0" width="30%" class="btn btn-primary btn-rounded-sm" text="URL" (tap)="getPathPdfFromUrl()"></Button>
-  <Button row="1" col="1" width="30%" class="btn btn-primary btn-rounded-sm" text="Local" (tap)="getPathPdfFromDisk()"></Button>
-  <Button row="1" col="2" width="30%" class="btn btn-primary btn-rounded-sm" text="Base64" (tap)="getPdfFromBase64()"></Button>
+  <Button row="1" col="0" width="25%" class="btn btn-primary btn-rounded-sm" text="URL" (tap)="getPathPdfFromUrl()"></Button>
+  <Button row="1" col="1" width="25%" class="btn btn-primary btn-rounded-sm" text="PdfFile" (tap)="getPathPdfFile()"></Button>
+  <Button row="1" col="2" width="25%" class="btn btn-primary btn-rounded-sm" text="Image64" (tap)="getPathImageFromBase64()"></Button>
+  <Button row="1" col="3" width="25%" class="btn btn-primary btn-rounded-sm" text="Pdf64" (tap)="getPathPdfFromBase64()"></Button>
 </GridLayout>
