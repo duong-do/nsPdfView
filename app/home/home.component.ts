@@ -1,16 +1,14 @@
 import { Component, OnInit, NgZone, OnDestroy } from "@angular/core";
 import { knownFolders, File, Folder } from "file-system";
 import { FileCreateComponent } from './file.create.component'
+import { isIOS } from "tns-core-modules/platform";
 import * as fs from "file-system";
-// import * as atob from 'atob';
-import * as  base64 from "base-64";
-import { android } from "tns-core-modules/application/application";
-// import * as  base64 from "base64topdf";
+import * as utf8 from "utf8";
 import * as imageSource from "image-source";
-const imageSourceModule = require("tns-core-modules/image-source");
-var atob = require('atob');
 
 declare var NSData: any;
+declare var android: any;
+declare var java: any;
 
 @Component({
     selector: "Home",
@@ -31,17 +29,17 @@ export class HomeComponent implements OnInit {
   public imageFile: fs.File;
 
   public constructor() { 
-    // console.log(this.getPathImageFromBase64());
-    // var b64 = "SGVsbG8sIFdvcmxkIQ==";
-    // var bin = atob(b64);
-
-    // console.log(bin); // "Hello, World!"
-    
+    // var str = "myfancystring";
+    // var bytes = utf8.encode(str);
+    // var encodedStr = base64.encode(bytes);
+    // console.log('myfancystring encode: ' + encodedStr);
+    // var decodedStr = base64.decode(encodedStr);
+    // console.log('myfancystring decode: ' + decodedStr);
   }
   
   ngOnInit() {
-      console.log("in homr onint");
-      // this.filePath = "https://www.princexml.com/howcome/2016/samples/magic8/index.pdf";
+      console.log("OnInit");
+      this.filePath = "https://www.princexml.com/howcome/2016/samples/magic8/index.pdf";
   }
 
   getPathPdfFile() {
@@ -53,19 +51,16 @@ export class HomeComponent implements OnInit {
   getPathImageFromBase64() {
     this.folderName = "NativeScript";
     this.fileName = "mountain.png";
-    // this.documents = fs.knownFolders.documents();
-    // this.folder = this.documents.getFolder(this.folderName);
-    // this.file = this.folder.getFile(this.fileName);
     
     const image = imageSource.fromBase64(this.getBase64Image());
     this.filePath = fs.path.join(fs.knownFolders.documents().path + '/' + this.folderName, this.fileName);
-    image.saveToFile(this.filePath, "png");
-    // if (fs.File.exists(this.imageFile.path)) {
+    const saved = image.saveToFile(this.filePath, "png");
+    if (saved) {
       const tmpFile = fs.File.fromPath(this.filePath);
       const binary = tmpFile.readSync(err => { console.log("Error:" + err); });
       console.log(this.filePath);  
       // console.log(binary);
-    // }
+    }
   }
 
   getPathPdfFromBase64() {
@@ -74,14 +69,25 @@ export class HomeComponent implements OnInit {
     this.documents = fs.knownFolders.documents();
     this.folder = this.documents.getFolder(this.folderName);
     this.file = this.folder.getFile(this.fileName);
-  
-    // this.file.writeSync(this._base64ToArrayBuffer(this.getBase64Pdf()));
-    // this.file.writeText(base64.decode(this.getBase64Pdf())).then();
-    
-    // this.filePath = fs.path.join(fs.knownFolders.documents().path + '/' + this.folderName, this.fileName);
     this.filePath = this.file.path;
-    NSData.alloc().initWithBase64EncodedStringOptions(this.getBase64Pdf(), 1).writeToFileAtomically(this.file.path, false);
 
+    if (isIOS) {
+      NSData.alloc().initWithBase64EncodedStringOptions(this.getBase64Pdf(), 1).writeToFileAtomically(this.file.path, false);
+    } else {
+
+      let text = new java.lang.String('Test string ');
+      let data = text.getBytes("UTF-8");
+      console.log('Encode: ' + android.util.Base64.encodeToString(data, android.util.Base64.DEFAULT));
+
+      // android.util.Base64.encodeToString(this.getBase64Pdf(), 1).writeToFileAtomically(this.file.path, false);
+      const base64 = android.util.Base64.decode(this.getBase64Pdf(), android.util.Base64.DEFAULT);      
+      this.file.writeSync(base64);
+
+
+    }
+    
+    // this.file.writeSync(this._base64ToArrayBuffer(this.getBase64Pdf()));
+    
     if (fs.File.exists(this.file.path)) {
       const tmpFile = fs.File.fromPath(this.file.path);
       const binary = tmpFile.readSync(err => { console.log("Error:" + err); });
@@ -91,76 +97,15 @@ export class HomeComponent implements OnInit {
     
   }
 
-  // 2nd try
-  _base64ToArrayBuffer(base64) {
-    var binary_string =  atob(base64);
-    var len = binary_string.length;
-    var bytes = new Uint8Array( len );
-    for (var i = 0; i < len; i++)        {
-        bytes[i] = binary_string.charCodeAt(i);
-    }
-    
-    return bytes.buffer;
-  }
-
+  
   getPathPdfFromDisk_() {
-    this.filePath = fs.path.join(fs.knownFolders.currentApp().path, this.fileName); 
-    // File path: /data/data/org.nativescript.blankng/files/app/documents/myPdf.pdf
-    console.log('File path: ' + this.filePath);
-    
-    // this.fileCreateComponent.onCreateFile();
+    this.filePath = fs.path.join(fs.knownFolders.currentApp().path, this.fileName);    
+    console.log('File path: ' + this.filePath); // Output: "File path: /data/data/org.nativescript.blankng/files/app/documents/myPdf.pdf"
   }
 
   getPathPdfFromUrl() {
     this.filePath = "https://www.princexml.com/howcome/2016/samples/magic8/index.pdf";
     console.log(this.filePath);  
-  }
-
-  // 1st try: doesn't work
-  getPdfFromBase64_() {
-    console.log('Call getPdfFromBase64()')
-
-    // let encodedPdf = base64.base64Encode(this.filePath);
-    // console.log(encodedPdf);
-
-    // const basePath = fs.knownFolders.currentApp();
-    // const tmpFileName = this.filePath = fs.path.join(fs.knownFolders.currentApp().path, this.filename);
-    // console.log('tmpFile: ' + tmpFileName);
-
-    const tmpFileName = "pdfBase64.pdf";
-    const tmpFile = knownFolders.documents().getFolder("documents").getFile(tmpFileName);
-
-    const documents = knownFolders.documents();
-    const folder = documents.getFolder("documents");
-    const file = folder.getFile(tmpFileName);
-
-    file.writeSync(this.getPdf()), error => { console.log('Error writeSync')};      
-    console.log('tmpFile: ' + file.readSync());
-
-    
-    // console.log('Encode myPdf.pdf: ' + encodeBase64);
-    // let decodedBase64 = base64.base64Decode(encodeBase64, 'myPdf.pdf');
-    // console.log('Decode myPdf.pdf: ' + decodedBase64);
-
-    const path = fs.path.join(fs.knownFolders.documents().path, 'pdfBase64.pdf');
-    const pdf = File.fromPath(path);
-    const binarySource = pdf.readSync((err) => {
-        console.log(err);
-    });
-    console.log(binarySource.base64Encode);
-
-    this.filePath = fs.path.join(fs.knownFolders.currentApp().path, tmpFileName); 
-    console.log('path base64: ' + this.filePath);
-
-    // const rawdata = base64.decode(this.getPdf());
-    // tmpFile.writeText(rawdata)
-    //   .then(file => {
-    //     let path = fs.path.join(fs.knownFolders.documents().path, "pdfBase64.pdf");
-    //     if (fs.File.exists(path)) {
-    //       // utilModule.ios.openFile(path);
-    //       this.pdfPath = path;
-    //     }
-    //   })
   }
 
   private getPdf(): string {
