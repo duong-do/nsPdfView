@@ -29,23 +29,28 @@ export class HomeComponent implements OnInit {
   public imageFile: fs.File;
 
   public constructor() { 
+  }
+  
+  ngOnInit() {
+      console.log("OnInit");
+      this.filePath = "https://www.princexml.com/howcome/2016/samples/magic8/index.pdf";
+
     // var str = "myfancystring";
     // var bytes = utf8.encode(str);
     // var encodedStr = base64.encode(bytes);
     // console.log('myfancystring encode: ' + encodedStr);
     // var decodedStr = base64.decode(encodedStr);
     // console.log('myfancystring decode: ' + decodedStr);
-  }
-  
-  ngOnInit() {
-      console.log("OnInit");
-      this.filePath = "https://www.princexml.com/howcome/2016/samples/magic8/index.pdf";
+
+    // let text = new java.lang.String('Test string ');
+    // let data = text.getBytes("UTF-8");
+    // console.log('Encode: ' + android.util.Base64.encodeToString(data, android.util.Base64.DEFAULT));
   }
 
   getPathPdfFile() {
     this.fileName = "documents/myPdf.pdf";
     this.filePath = fs.path.join(fs.knownFolders.currentApp().path, this.fileName); 
-    console.log(this.filePath);
+    console.log(this.filePath); // Output: "File path: /data/data/org.nativescript.blankng/files/app/documents/myPdf.pdf"
   }
 
   getPathImageFromBase64() {
@@ -59,7 +64,6 @@ export class HomeComponent implements OnInit {
       const tmpFile = fs.File.fromPath(this.filePath);
       const binary = tmpFile.readSync(err => { console.log("Error:" + err); });
       console.log(this.filePath);  
-      // console.log(binary);
     }
   }
 
@@ -71,36 +75,24 @@ export class HomeComponent implements OnInit {
     this.file = this.folder.getFile(this.fileName);
     this.filePath = this.file.path;
 
+    let base64String = '';
     if (isIOS) {
-      NSData.alloc().initWithBase64EncodedStringOptions(this.getBase64Pdf(), 1).writeToFileAtomically(this.file.path, false);
-    } else {
-
-      let text = new java.lang.String('Test string ');
-      let data = text.getBytes("UTF-8");
-      console.log('Encode: ' + android.util.Base64.encodeToString(data, android.util.Base64.DEFAULT));
-
-      // android.util.Base64.encodeToString(this.getBase64Pdf(), 1).writeToFileAtomically(this.file.path, false);
-      const base64 = android.util.Base64.decode(this.getBase64Pdf(), android.util.Base64.DEFAULT);      
-      this.file.writeSync(base64);
-
-
+      base64String = NSData.alloc().initWithBase64EncodedStringOptions(this.getBase64Pdf(), 1);
+    } else {      
+      base64String = android.util.Base64.decode(this.getBase64Pdf(), android.util.Base64.DEFAULT);      
     }
-    
-    // this.file.writeSync(this._base64ToArrayBuffer(this.getBase64Pdf()));
-    
+    this.file.writeSync(base64String);
+
     if (fs.File.exists(this.file.path)) {
       const tmpFile = fs.File.fromPath(this.file.path);
       const binary = tmpFile.readSync(err => { console.log("Error:" + err); });
       console.log(this.filePath);  
-      console.log(binary);
-    }
-    
+    }    
   }
-
   
   getPathPdfFromDisk_() {
     this.filePath = fs.path.join(fs.knownFolders.currentApp().path, this.fileName);    
-    console.log('File path: ' + this.filePath); // Output: "File path: /data/data/org.nativescript.blankng/files/app/documents/myPdf.pdf"
+    console.log('File path: ' + this.filePath); 
   }
 
   getPathPdfFromUrl() {
