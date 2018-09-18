@@ -1,16 +1,11 @@
 import { Component, OnInit, NgZone, OnDestroy } from "@angular/core";
-import { knownFolders, File, Folder } from "file-system";
 import { FileCreateComponent } from './file.create.component'
+import { isIOS } from "tns-core-modules/platform";
 import * as fs from "file-system";
-// import * as atob from 'atob';
-import * as  base64 from "base-64";
-import { android } from "tns-core-modules/application/application";
-// import * as  base64 from "base64topdf";
 import * as imageSource from "image-source";
-const imageSourceModule = require("tns-core-modules/image-source");
-var atob = require('atob');
 
 declare var NSData: any;
+declare var android: any;
 
 @Component({
     selector: "Home",
@@ -62,12 +57,19 @@ export class HomeComponent implements OnInit {
     this.folder = this.documents.getFolder(this.folderName);
     this.file = this.folder.getFile(this.fileName);
     this.filePath = this.file.path;
-    NSData.alloc().initWithBase64EncodedStringOptions(this.getBase64Pdf(), 1).writeToFileAtomically(this.filePath, false);
 
-    if (fs.File.exists(this.filePath)) {
-      const binary = fs.File.fromPath(this.filePath).readSync(err => { console.log("Error:" + err); });
-      console.log(this.filePath);  
+    let base64String = '';
+    if (isIOS) {
+      base64String = NSData.alloc().initWithBase64EncodedStringOptions(this.getBase64Pdf(), 1);
+    } else {      
+      base64String = android.util.Base64.decode(this.getBase64Pdf(), android.util.Base64.DEFAULT);      
     }
+    this.file.writeSync(base64String);
+
+    if (fs.File.exists(this.file.path)) {
+      // const tmpFile = fs.File.fromPath(this.file.path);
+      console.log(this.filePath);  
+    }    
   }
 
   getPathPdfFromUrl() {
